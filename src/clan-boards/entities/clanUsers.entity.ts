@@ -21,7 +21,7 @@ export class ClanUsers {
   @Column({ type: 'int' })
   clanId: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'int' })
   status: ClanJoin;
 
   @CreateDateColumn({ type: 'timestamp' })

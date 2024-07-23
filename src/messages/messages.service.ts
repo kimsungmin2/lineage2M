@@ -1,26 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Message } from './entities/message.entity';
+import { ReadMessage } from './type/messageRead.type';
 import { CreateMessageDto } from './dto/create-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
 
 @Injectable()
 export class MessagesService {
-  create(createMessageDto: CreateMessageDto) {
-    return 'This action adds a new message';
+  constructor(
+    @InjectRepository(Message)
+    private mailsRepository: Repository<Message>,
+  ) {}
+
+  async getManyMessage(userId: number) {
+    return await this.mailsRepository.find({
+      where: { receiveUserId: userId },
+    });
   }
 
-  findAll() {
-    return `This action returns all messages`;
+  async getMessage(messageId: number) {
+    const message = await this.mailsRepository.findOne({
+      where: {
+        id: messageId,
+      },
+    });
+    if (!message) {
+      throw new NotFoundException();
+    }
+
+    return message;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} message`;
+  async deleteMessage(messageId: number) {
+    await this.getMessage(messageId);
+    return await this.mailsRepository.softDelete({ id: messageId });
   }
 
-  update(id: number, updateMessageDto: UpdateMessageDto) {
-    return `This action updates a #${id} message`;
+  async readMessage(messageId: number) {
+    await this.mailsRepository.update(messageId, {
+      status: ReadMessage.yes,
+    });
+
+    return await this.mailsRepository.findOne({
+      where: {
+        id: messageId,
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} message`;
+  async createMessage(createMessageDto: CreateMessageDto) {
+    return await this.mailsRepository.save({ ...createMessageDto });
   }
+
+  async createClanMessage(clanId: number) {}
 }
