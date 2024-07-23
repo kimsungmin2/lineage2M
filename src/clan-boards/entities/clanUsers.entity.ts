@@ -8,32 +8,17 @@ import {
 } from 'typeorm';
 
 @Entity({
-  name: 'clanBoards',
+  name: 'clanUsers',
 })
-export class ClanBoards {
+export class ClanUsers {
   @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar' })
-  name: string;
+  @Column({ type: 'int' })
+  userId: number;
 
   @Column({ type: 'int' })
-  masterId: number;
-
-  @Column({ type: 'varchar' })
-  content: string;
-
-  @Column({ type: 'int', nullable: true })
-  managerId1: number;
-
-  @Column({ type: 'int', nullable: true })
-  managerId2: number;
-
-  @Column({ type: 'int', nullable: true })
-  managerId3: number;
-
-  @Column({ type: 'varchar', nullable: true })
-  logo: string;
+  clanId: number;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
