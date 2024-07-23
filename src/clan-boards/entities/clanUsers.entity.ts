@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ClanJoin } from '../types/clanJoin.type';
 
 @Entity({
   name: 'clanUsers',
@@ -19,6 +20,9 @@ export class ClanUsers {
 
   @Column({ type: 'int' })
   clanId: number;
+
+  @Column({ type: 'varchar' })
+  status: ClanJoin;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

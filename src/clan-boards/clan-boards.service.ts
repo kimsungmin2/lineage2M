@@ -13,6 +13,8 @@ import { ClanUsers } from './entities/clanUsers.entity';
 import { GetClan } from './types/getClan.type';
 import { UpadteClanDto } from './dto/update-clan-board.dto';
 import { ClanDto } from './dto/clan.dto';
+import { ClanJoin } from './types/clanJoin.type';
+import { MasterDto } from './dto/master.dto';
 
 @Injectable()
 export class ClanBoardsService {
@@ -55,12 +57,46 @@ export class ClanBoardsService {
     }
   }
 
-  async createClanUsers(clanDto: ClanDto) {
+  async createClanUsers(clanId: number, clanDto: ClanDto) {
     try {
-      return await this.clanUsersRepository.save({ ...clanDto });
+      await this.findByClan(clanId);
+
+      return await this.clanUsersRepository.save({
+        clanId,
+        userId: clanDto.userId,
+        status: ClanJoin.no,
+      });
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async findClanAndUser(clanId: number, userId: number) {
+    const userClan = await this.clanUsersRepository.findOne({
+      where: {
+        userId,
+        clanId,
+      },
+    });
+    if (!userClan) {
+      throw new NotFoundException();
+    }
+    return userClan;
+  }
+
+  async createClanJoin(clanId: number, userId: number) {
+    //유저 있는지 체크
+    await this.findByClan(clanId);
+
+    const userClan = await this.findClanAndUser(clanId, userId);
+    if (userClan.status === ClanJoin.yes) {
+      throw new ConflictException();
+    }
+
+    userClan.status = ClanJoin.yes;
+    await this.clanUsersRepository.save(userClan);
+
+    return userClan;
   }
 
   async findManyClan(type: number) {
@@ -102,6 +138,9 @@ export class ClanBoardsService {
           id: clanId,
         },
       });
+      if (!clan) {
+        throw new NotFoundException();
+      }
 
       return clan;
     } catch (error) {
@@ -138,6 +177,14 @@ export class ClanBoardsService {
     }
   }
 
+  async updateClanMaster(clanId: number, masterDto: MasterDto) {
+    await this.findClanAndUser(clanId, masterDto.userId);
+
+    return await this.clanBoardsRepository.update(clanId, {
+      masterId: masterDto.userId,
+    });
+  }
+
   async deleteClan(clanDto: ClanDto) {
     try {
       const clan = await this.findByClan(clanDto.clanId);
@@ -155,11 +202,11 @@ export class ClanBoardsService {
       try {
         await queryRunner.manager
           .getRepository(ClanUsers)
-          .delete({ id: clanDto.clanId });
+          .softDelete({ id: clanDto.clanId });
 
         await queryRunner.manager
           .getRepository(ClanUsers)
-          .delete({ clanId: clanDto.clanId });
+          .softDelete({ clanId: clanDto.clanId });
         await queryRunner.commitTransaction();
       } catch (error) {
         await queryRunner.rollbackTransaction();
@@ -173,7 +220,7 @@ export class ClanBoardsService {
 
   async deleteClanUser(clanDto: ClanDto) {
     try {
-      const users = await this.clanUsersRepository.delete({
+      const users = await this.clanUsersRepository.softDelete({
         userId: clanDto.userId,
         clanId: clanDto.clanId,
       });
@@ -184,5 +231,9 @@ export class ClanBoardsService {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async outClanUser(clanId: number, userId: number) {
+    return await this.clanUsersRepository.softDelete({ clanId, userId });
   }
 }
