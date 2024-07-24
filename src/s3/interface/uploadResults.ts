@@ -1,0 +1,3 @@
+interface UploadResult {
+  imageUrl: string;
+}

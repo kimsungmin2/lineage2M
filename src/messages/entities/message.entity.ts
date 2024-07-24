@@ -6,23 +6,23 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ClanJoin } from '../types/clanJoin.type';
+import { ReadMessage } from '../type/messageRead.type';
 
 @Entity({
-  name: 'clanUsers',
+  name: 'messages',
 })
-export class ClanUsers {
+export class Message {
   @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @Column({ type: 'int' })
-  userId: number;
+  sendUserId: number;
 
   @Column({ type: 'int' })
-  clanId: number;
+  receiveUserId: number;
 
-  @Column({ type: 'int' })
-  status: ClanJoin;
+  @Column({ type: 'int', default: ReadMessage.no })
+  status: ReadMessage;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Query,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ClanBoardsService } from './clan-boards.service';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -31,11 +32,11 @@ export class ClanBoardsController {
   @Post('create')
   async createClan(
     @Body() createClanBoardDto: CreateClanBoardDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
     const clan = await this.clanBoardsService.createClan(
       createClanBoardDto,
-      file,
+      files,
     );
 
     return clan;
