@@ -22,6 +22,7 @@ export class MessagesService {
     const message = await this.mailsRepository.findOne({
       where: {
         id: messageId,
+        receiveUserId: userId,
       },
     });
     if (!message) {

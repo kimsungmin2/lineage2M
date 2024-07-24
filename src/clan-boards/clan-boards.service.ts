@@ -29,20 +29,23 @@ export class ClanBoardsService {
 
   async createClan(
     createClanBoardDto: CreateClanBoardDto,
-    file: Express.Multer.File,
+    files: Express.Multer.File[],
   ) {
     try {
       const { name, content, masterId } = createClanBoardDto;
 
       await this.findByClan(masterId);
 
-      const imageName = this.s3Service.getUUID();
-      const ext = file.originalname.split('.').pop();
-      const imageUrl = await this.s3Service.imageUploadToS3(
-        `${imageName}.${ext}`,
-        file,
-        ext,
-      );
+      let uploadResult: string[] = [];
+      if (files.length !== 0) {
+        const uploadResults: UploadResult[] =
+          await this.s3Service.saveImages(files);
+        for (let i = 0; i < uploadResults.length; i++) {
+          uploadResult.push(uploadResults[i].imageUrl);
+        }
+      }
+      const imageUrl =
+        uploadResult.length > 0 ? JSON.stringify(uploadResult) : null;
 
       const clan = await this.clanBoardsRepository.save({
         name,
@@ -148,19 +151,18 @@ export class ClanBoardsService {
     }
   }
 
-  async findByMaster(userId: number) {
+  async findByMaster(clanId: number, userId: number) {
     try {
       const clan = await this.clanBoardsRepository.findOne({
         where: [
-          { masterId: userId },
-          { managerId1: userId },
-          { managerId2: userId },
-          { managerId3: userId },
+          { id: clanId, masterId: userId },
+          { id: clanId, managerId1: userId },
+          { id: clanId, managerId2: userId },
+          { id: clanId, managerId3: userId },
         ],
       });
-      if (clan) {
-        throw new ConflictException('하나의 클랜만 운영 가능합니다.');
-      }
+
+      return clan;
     } catch (error) {
       console.log(error);
     }
@@ -168,6 +170,19 @@ export class ClanBoardsService {
 
   async updateClan(clanId: number, updateClanDto: UpadteClanDto) {
     try {
+      const managerIds = [
+        updateClanDto.masterId,
+        updateClanDto.managerId1,
+        updateClanDto.managerId2,
+        updateClanDto.managerId3,
+      ];
+
+      for (const managerId of managerIds) {
+        const clan = await this.findByMaster(clanId, managerId);
+        if (clan) {
+          throw new ConflictException('하나의 클랜만 운영 가능합니다.');
+        }
+      }
       return await this.clanBoardsRepository.save({
         id: clanId,
         ...updateClanDto,

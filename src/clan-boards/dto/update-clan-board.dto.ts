@@ -19,7 +19,7 @@ export class UpadteClanDto extends PickType(CreateClanBoardDto, [
     example: '3',
     description: '운영진 아이디',
   })
-  masagerId2: number;
+  managerId2: number;
 
   @IsNumber()
   @ApiProperty({
