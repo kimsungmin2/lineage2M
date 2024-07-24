@@ -4,13 +4,6 @@ import { IsNumber, IsString } from 'class-validator';
 export class CreateMessageDto {
   @IsNumber()
   @ApiProperty({
-    example: '1',
-    description: '보낸 사람 ID',
-  })
-  sendUserId: number;
-
-  @IsNumber()
-  @ApiProperty({
     example: '2',
     description: '받는 사람 ID',
   })

@@ -18,7 +18,7 @@ export class MessagesService {
     });
   }
 
-  async getMessage(messageId: number) {
+  async getMessage(messageId: number, userId: number) {
     const message = await this.mailsRepository.findOne({
       where: {
         id: messageId,
@@ -31,12 +31,12 @@ export class MessagesService {
     return message;
   }
 
-  async deleteMessage(messageId: number) {
-    await this.getMessage(messageId);
+  async deleteMessage(messageId: number, userId: number) {
+    await this.getMessage(messageId, userId);
     return await this.mailsRepository.softDelete({ id: messageId });
   }
 
-  async readMessage(messageId: number) {
+  async readMessage(messageId: number, userId: number) {
     await this.mailsRepository.update(messageId, {
       status: ReadMessage.yes,
     });
@@ -44,12 +44,16 @@ export class MessagesService {
     return await this.mailsRepository.findOne({
       where: {
         id: messageId,
+        receiveUserId: userId,
       },
     });
   }
 
-  async createMessage(createMessageDto: CreateMessageDto) {
-    return await this.mailsRepository.save({ ...createMessageDto });
+  async createMessage(userId: number, createMessageDto: CreateMessageDto) {
+    return await this.mailsRepository.save({
+      sendUserId: userId,
+      ...createMessageDto,
+    });
   }
 
   async createClanMessage(clanId: number) {}
