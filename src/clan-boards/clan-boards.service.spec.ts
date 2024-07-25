@@ -410,27 +410,30 @@ describe('ClanBoardsService', () => {
 
   describe('deleteClanUser', () => {
     it('클랜 탈퇴 완료', async () => {
-      const clanDto: ClanDto = { userId: 1, clanId: 1 };
+      const clanDto = { userId: 1, clanId: 1 };
 
       (clanUsersRepository.softDelete as jest.Mock).mockResolvedValue({
         affected: 1,
       });
 
-      const result = await service.deleteClanUser(clanDto);
+      const result = await service.deleteClanUser(
+        clanDto.clanId,
+        clanDto.userId,
+      );
 
       expect(result).toEqual({ affected: 1 });
     });
 
     it('이미 탈퇴 되었거나 정보가 없을 경우', async () => {
-      const clanDto: ClanDto = { userId: 1, clanId: 1 };
+      const clanDto = { userId: 1, clanId: 1 };
 
       (clanUsersRepository.softDelete as jest.Mock).mockResolvedValue({
         affected: 0,
       });
 
-      await expect(service.deleteClanUser(clanDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.deleteClanUser(clanDto.clanId, clanDto.userId),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

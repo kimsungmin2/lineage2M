@@ -233,11 +233,11 @@ export class ClanBoardsService {
     }
   }
 
-  async deleteClanUser(clanDto: ClanDto) {
+  async deleteClanUser(clanId: number, userId: number) {
     try {
       const users = await this.clanUsersRepository.softDelete({
-        userId: clanDto.userId,
-        clanId: clanDto.clanId,
+        userId: userId,
+        clanId: clanId,
       });
 
       if (!users) {
