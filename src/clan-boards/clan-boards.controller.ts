@@ -19,6 +19,7 @@ import { CreateClanBoardDto } from './dto/create-clan-board.dto';
 import { ClanDto } from './dto/clan.dto';
 import { UpadteClanDto } from './dto/update-clan-board.dto';
 import { MasterDto } from './dto/master.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('clan')
 @UseGuards()

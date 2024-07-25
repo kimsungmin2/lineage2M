@@ -13,7 +13,7 @@ import { ClanBoardsService } from 'src/clan-boards/clan-boards.service';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly clanBoardsService: ClanBoardsService,
-    private readonly usersService: UsersService,
+    // private readonly usersService: UsersService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([JwtStrategy.extractJWT]),
@@ -37,11 +37,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.usersService.findById(payload.sub);
+    // const user = await this.usersService.findById(payload.sub);
 
-    if (_.isNil(user)) {
-      throw new NotFoundException('해당하는 사용자를 찾을 수 없습니다.');
-    }
-    return { userId: user.id, clanId: user.clanId };
+    // if (_.isNil(user)) {
+    //   throw new NotFoundException('해당하는 사용자를 찾을 수 없습니다.');
+    // }
+    // return { userId: user.id, clanId: user.clanId };
   }
 }
