@@ -89,8 +89,8 @@ describe('ClanBoardsService', () => {
   describe('createClan', () => {
     it('클랜 생성', async () => {
       const createClanBoardDto: CreateClanBoardDto = {
-        name: 'Test Clan',
-        content: 'This is a test clan',
+        name: 'Mint Clan',
+        content: '마스터 이상만',
         masterId: 1,
       };
       const files: Express.Multer.File[] = [];
@@ -313,8 +313,8 @@ describe('ClanBoardsService', () => {
         managerId1: 2,
         managerId2: 3,
         managerId3: 4,
-        name: 'Updated Clan',
-        content: 'Updated content',
+        name: 'Mint Clan',
+        content: '그마 이상만~',
       };
 
       (service.findByMaster as jest.Mock).mockResolvedValue(null);
@@ -338,8 +338,8 @@ describe('ClanBoardsService', () => {
         managerId1: 2,
         managerId2: 3,
         managerId3: 4,
-        name: 'Updated Clan',
-        content: 'Updated content',
+        name: 'Mint Clan',
+        content: '마스터 이상만',
       };
 
       (service.findByMaster as jest.Mock).mockResolvedValue({});
@@ -409,7 +409,7 @@ describe('ClanBoardsService', () => {
   });
 
   describe('deleteClanUser', () => {
-    it('유저 추방 성공시', async () => {
+    it('클랜 탈퇴 완료', async () => {
       const clanDto: ClanDto = { userId: 1, clanId: 1 };
 
       (clanUsersRepository.softDelete as jest.Mock).mockResolvedValue({
@@ -421,7 +421,7 @@ describe('ClanBoardsService', () => {
       expect(result).toEqual({ affected: 1 });
     });
 
-    it('추방하려는 클랜원이 없을 경우', async () => {
+    it('이미 탈퇴 되었거나 정보가 없을 경우', async () => {
       const clanDto: ClanDto = { userId: 1, clanId: 1 };
 
       (clanUsersRepository.softDelete as jest.Mock).mockResolvedValue({
@@ -431,6 +431,21 @@ describe('ClanBoardsService', () => {
       await expect(service.deleteClanUser(clanDto)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('outClanUser', () => {
+    it('클랜 추방', async () => {
+      const clanId = 1;
+      const userId = 1;
+
+      (clanUsersRepository.softDelete as jest.Mock).mockResolvedValue({
+        affected: 1,
+      });
+
+      const result = await service.outClanUser(clanId, userId);
+
+      expect(result).toEqual({ affected: 1 });
     });
   });
 });
