@@ -249,6 +249,10 @@ export class ClanBoardsService {
   }
 
   async outClanUser(clanId: number, userId: number) {
-    return await this.clanUsersRepository.softDelete({ clanId, userId });
+    try {
+      return await this.clanUsersRepository.softDelete({ clanId, userId });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
