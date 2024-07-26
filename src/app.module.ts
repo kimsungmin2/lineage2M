@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { S3Module } from './s3/s3.module';
@@ -13,6 +13,7 @@ export const typeOrmModuleOptions = {
   ): Promise<TypeOrmModuleOptions> => ({
     type: 'postgres',
     host: configService.get<string>('DB_HOST'),
+    port: configService.get('DB_PORT'),
     username: configService.get('DB_USERNAME'),
     password: configService.get('DB_PASSWORD'),
     database: configService.get('DB_NAME'),
@@ -27,12 +28,12 @@ export const typeOrmModuleOptions = {
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.IS_TEST === 'true' ? `.env.test` : `.env`,
       validationSchema: Joi.object({
-        DB_HOST: Joi.string().required(),
-        DB_PORT: Joi.number().required(),
+        JWT_SECRET_KEY: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.number().required(),
         DB_NAME: Joi.string().required(),
         DB_SYNC: Joi.boolean().required(),
       }),
