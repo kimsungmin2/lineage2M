@@ -51,12 +51,12 @@ export class ClanBoardsController {
   }
 
   @ApiOperation({ summary: '클랜 디스코드 추가' })
-  @Patch(':clanId')
-  async createDiscord(
+  @Patch('discord/:clanId')
+  async updateDiscord(
     @Param('clanId') clanId: number,
     createClanDiscord: CreateClanDiscord,
   ) {
-    return await this.clanBoardsService.createClanDiscord(
+    return await this.clanBoardsService.updateDiscord(
       clanId,
       createClanDiscord,
     );
@@ -123,9 +123,15 @@ export class ClanBoardsController {
   }
 
   @ApiOperation({ summary: '클랜 디스코드 ' })
-  @Get()
+  @Get('discord/:clanId/join')
   async clanDiscord(@Param('clanId') clanId: number, @Res() res) {
     const clan = await this.clanBoardsService.clanDiscord(clanId);
     res.redirect(`https://discord.gg/${clan}`);
+  }
+
+
+  @ApiOperation({ summary: '클랜 디스코드 생성' })
+  @Get('discord/:clanId')
+  async createDiscord(@Param('clanId') clanId: number) {
   }
 }

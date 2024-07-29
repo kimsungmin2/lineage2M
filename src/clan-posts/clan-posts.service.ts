@@ -43,13 +43,17 @@ export class ClanPostsService {
         ...createClanPostDto,
         imageUrl,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getManyClanPost() {
     try {
       return await this.clanPostRepository.find();
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async updateClanPost(
@@ -71,7 +75,9 @@ export class ClanPostsService {
       return await this.clanPostRepository.update(postId, {
         ...updateClanPostDto,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getPostrById(postId: number) {
@@ -84,7 +90,9 @@ export class ClanPostsService {
         throw new NotFoundException();
       }
       return post;
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async deleteClanPost(postId: number, userId: number) {
@@ -101,6 +109,8 @@ export class ClanPostsService {
       }
 
       return await this.clanPostRepository.softDelete({ id: postId });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

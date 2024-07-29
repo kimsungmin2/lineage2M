@@ -267,7 +267,7 @@ export class ClanBoardsService {
     }
   }
 
-  async createClanDiscord(
+  async updateDiscord(
     clanId: number,
     createClanDiscord: CreateClanDiscord,
   ) {
