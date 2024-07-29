@@ -35,6 +35,9 @@ export class ClanBoards {
   @Column({ type: 'varchar', nullable: true })
   logo: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  discord: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

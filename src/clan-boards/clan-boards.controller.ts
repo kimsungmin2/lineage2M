@@ -11,6 +11,7 @@ import {
   UploadedFile,
   Query,
   UploadedFiles,
+  Res,
 } from '@nestjs/common';
 import { ClanBoardsService } from './clan-boards.service';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -19,6 +20,7 @@ import { CreateClanBoardDto } from './dto/create-clan-board.dto';
 import { ClanDto } from './dto/clan.dto';
 import { UpadteClanDto } from './dto/update-clan-board.dto';
 import { MasterDto } from './dto/master.dto';
+import { CreateClanDiscord } from './dto/clanDiscord.dto';
 
 @ApiTags('clan')
 @UseGuards()
@@ -46,6 +48,18 @@ export class ClanBoardsController {
   @Post(':clanId/')
   async createClanUser(@Param('clanId') clanId: number, clanDto: ClanDto) {
     return await this.clanBoardsService.createClanUsers(clanId, clanDto);
+  }
+
+  @ApiOperation({ summary: '클랜 디스코드 추가' })
+  @Patch(':clanId')
+  async createDiscord(
+    @Param('clanId') clanId: number,
+    createClanDiscord: CreateClanDiscord,
+  ) {
+    return await this.clanBoardsService.createClanDiscord(
+      clanId,
+      createClanDiscord,
+    );
   }
 
   //가드 달아놔야됨
@@ -106,5 +120,12 @@ export class ClanBoardsController {
     @Param('clauserIdnId') userId: number,
   ) {
     return await this.clanBoardsService.outClanUser(clanId, userId);
+  }
+
+  @ApiOperation({ summary: '클랜 디스코드 ' })
+  @Get()
+  async clanDiscord(@Param('clanId') clanId: number, @Res() res) {
+    const clan = await this.clanBoardsService.clanDiscord(clanId);
+    res.redirect(`https://discord.gg/${clan}`);
   }
 }

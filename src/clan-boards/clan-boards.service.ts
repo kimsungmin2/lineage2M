@@ -15,6 +15,7 @@ import { UpadteClanDto } from './dto/update-clan-board.dto';
 import { ClanDto } from './dto/clan.dto';
 import { ClanJoin } from './types/clanJoin.type';
 import { MasterDto } from './dto/master.dto';
+import { CreateClanDiscord } from './dto/clanDiscord.dto';
 
 @Injectable()
 export class ClanBoardsService {
@@ -249,6 +250,33 @@ export class ClanBoardsService {
   }
 
   async outClanUser(clanId: number, userId: number) {
-    return await this.clanUsersRepository.softDelete({ clanId, userId });
+    try {
+      return await this.clanUsersRepository.softDelete({ clanId, userId });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async clanDiscord(clanId: number) {
+    try {
+      const clan = await this.findByClan(clanId);
+
+      return clan.discord;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async createClanDiscord(
+    clanId: number,
+    createClanDiscord: CreateClanDiscord,
+  ) {
+    try {
+      return await this.clanBoardsRepository.update(clanId, {
+        discord: createClanDiscord.clanDisCord,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
