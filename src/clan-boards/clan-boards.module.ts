@@ -10,5 +10,6 @@ import { ClanBoards } from './entities/clan-board.entity';
   imports: [TypeOrmModule.forFeature([ClanUsers, ClanBoards]), S3Module],
   controllers: [ClanBoardsController],
   providers: [ClanBoardsService],
+  exports: [ClanBoardsService]
 })
-export class ClanBoardsModule {}
+export class ClanBoardsModule { }
