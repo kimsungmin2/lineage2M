@@ -1,28 +1,23 @@
-import Joi from 'joi';
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import * as Joi from 'joi';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { ClanBoards } from './clan-boards/entities/clan-board.entity';
-import { ClanPost } from './clan-posts/entities/clan-post.entity';
-import { Message } from './messages/entities/message.entity';
 import { S3Module } from './s3/s3.module';
 import { ClanPostsModule } from './clan-posts/clan-posts.module';
 import { ClanBoardsModule } from './clan-boards/clan-boards.module';
 import { MessagesModule } from './messages/messages.module';
 
-const typeOrmModuleOptions = {
+export const typeOrmModuleOptions = {
   useFactory: async (
     configService: ConfigService,
   ): Promise<TypeOrmModuleOptions> => ({
-    namingStrategy: new SnakeNamingStrategy(),
-    type: 'mysql',
+    type: 'postgres',
+    host: configService.get<string>('DB_HOST'),
+    port: configService.get('DB_PORT'),
     username: configService.get('DB_USERNAME'),
     password: configService.get('DB_PASSWORD'),
-    host: configService.get('DB_HOST'),
-    port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [ClanBoards, ClanPost, Message],
+    entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: configService.get('DB_SYNC'),
     logging: true,
   }),
@@ -52,4 +47,4 @@ const typeOrmModuleOptions = {
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

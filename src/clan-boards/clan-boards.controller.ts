@@ -8,10 +8,10 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
   Query,
   UploadedFiles,
   Res,
+  Req,
 } from '@nestjs/common';
 import { ClanBoardsService } from './clan-boards.service';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -21,6 +21,7 @@ import { ClanDto } from './dto/clan.dto';
 import { UpadteClanDto } from './dto/update-clan-board.dto';
 import { MasterDto } from './dto/master.dto';
 import { CreateClanDiscord } from './dto/clanDiscord.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('clan')
 @UseGuards()
@@ -63,6 +64,7 @@ export class ClanBoardsController {
   }
 
   //가드 달아놔야됨
+  @UseGuards(AuthGuard('manager'))
   @ApiOperation({ summary: '클랜 가입 수락' })
   @Patch(':clanId/join/:userId')
   async createClanJoin(
@@ -84,12 +86,14 @@ export class ClanBoardsController {
     return await this.clanBoardsService.findByClan(clanId);
   }
 
+  @UseGuards(AuthGuard('manager'))
   @ApiOperation({ summary: '클랜 정보 수정' })
   @Patch(':clanId')
   async updateClan(clanId: number, upadteClanDto: UpadteClanDto) {
     return await this.clanBoardsService.updateClan(clanId, upadteClanDto);
   }
 
+  @UseGuards(AuthGuard('manager'))
   @ApiOperation({ summary: '클랜장 양도' })
   @Patch(':clanId/transfer')
   async updateClanMaster(
@@ -99,26 +103,26 @@ export class ClanBoardsController {
     return await this.clanBoardsService.updateClanMaster(clanId, masterDto);
   }
 
-  //가드 만들기 전까지 못 씀 임시로 클랜 디티오
+  @UseGuards(AuthGuard('manager'))
   @ApiOperation({ summary: '클랜 삭제' })
   @Delete(':clanId/delete')
   async deleteClan(@Param('clanId') clanId: number, clanDto: ClanDto) {
     return await this.clanBoardsService.deleteClan(clanDto);
   }
 
-  //가드 만들기 전까지 못 씀 임시로 클랜 디티오
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: '클랜 탈퇴' })
   @Delete(':clanId/withdrawal')
-  async deleteClanUser(@Param('clanId') clanId: number, clanDto: ClanDto) {
-    return await this.clanBoardsService.deleteClanUser(clanDto);
+  async deleteClanUser(@Param('clanId') clanId: number, @Req() req) {
+    const { userId } = req.user;
+    return await this.clanBoardsService.deleteClanUser(clanId, userId);
   }
 
+  @UseGuards(AuthGuard('manager'))
   @ApiOperation({ summary: '클랜원 추방' })
-  @Delete(':clanId/getOut/:userId')
-  async outClanUser(
-    @Param('clanId') clanId: number,
-    @Param('clauserIdnId') userId: number,
-  ) {
+  @Delete(':clanId/getOut')
+  async outClanUser(@Param('clanId') clanId: number, @Req() req) {
+    const { userId } = req.user;
     return await this.clanBoardsService.outClanUser(clanId, userId);
   }
 
