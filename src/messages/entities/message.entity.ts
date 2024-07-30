@@ -21,6 +21,9 @@ export class Message {
   @Column({ type: 'int' })
   receiveUserId: number;
 
+  @Column({ type: 'varchar' })
+  content: string;
+
   @Column({ type: 'int', default: ReadMessage.no })
   status: ReadMessage;
 

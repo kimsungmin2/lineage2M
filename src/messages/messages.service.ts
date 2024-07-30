@@ -56,6 +56,4 @@ export class MessagesService {
       ...createMessageDto,
     });
   }
-
-  async createClanMessage(clanId: number) {}
 }
