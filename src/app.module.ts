@@ -1,11 +1,12 @@
 import * as Joi from 'joi';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { S3Module } from './s3/s3.module';
 import { ClanPostsModule } from './clan-posts/clan-posts.module';
 import { ClanBoardsModule } from './clan-boards/clan-boards.module';
 import { MessagesModule } from './messages/messages.module';
+import { LoggerMiddleware } from './utils/middleware/logger.middleware';
 
 export const typeOrmModuleOptions = {
   useFactory: async (
@@ -47,4 +48,8 @@ export const typeOrmModuleOptions = {
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
