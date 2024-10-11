@@ -1,48 +1,25 @@
-import * as Joi from 'joi';
-import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { AuthModule } from './auth/auth.module';
-import { ParticipationsModule } from './participations/participations.module';
-import { BidModule } from './bid/bid.module';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
+import { join } from 'path';
 
-export const typeOrmModuleOptions = {
-  useFactory: async (
-    configService: ConfigService,
-  ): Promise<TypeOrmModuleOptions> => ({
-    type: 'postgres',
-    host: configService.get<string>('DB_HOST'),
-    port: configService.get('DB_PORT'),
-    username: configService.get('DB_USERNAME'),
-    password: configService.get('DB_PASSWORD'),
-    database: configService.get('DB_NAME'),
-    entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    synchronize: configService.get('DB_SYNC'),
-    logging: true,
-  }),
-  inject: [ConfigService],
-};
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-@Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      validationSchema: Joi.object({
-        JWT_SECRET_KEY: Joi.string().required(),
-        DB_USERNAME: Joi.string().required(),
-        DB_PASSWORD: Joi.string().required(),
-        DB_HOST: Joi.string().required(),
-        DB_PORT: Joi.number().required(),
-        DB_NAME: Joi.string().required(),
-        DB_SYNC: Joi.boolean().required(),
-      }),
-    }),
-    TypeOrmModule.forRootAsync(typeOrmModuleOptions),
-    AuthModule,
-    ParticipationsModule,
-    BidModule,
-  ],
-  controllers: [],
-  providers: [],
-})
-export class AppModule {}
+  app.useGlobalPipes(new ValidationPipe());
+
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  });
+  app.use(cookieParser());
+  app.engine('ejs', require('ejs').__express);
+  app.set('view engine', 'ejs');
+  app.set('views', join(__dirname, '..', 'views'));
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`listening on port ${port}`);
+}
+bootstrap();

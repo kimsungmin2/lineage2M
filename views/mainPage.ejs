@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>신화 혈맹 입찰 페이지</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+      .btn-register,
+      .btn-login {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .btn-register:hover,
+      .btn-login:hover {
+        background-color: #0056b3;
+      }
+      .participation-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+      .participation-item {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .participation-item:hover {
+        background-color: #f9f9f9;
+      }
+      .boss-info,
+      .item-info {
+        font-size: 14px;
+        color: #555;
+        margin-top: 5px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        max-width: 600px;
+        width: 100%;
+        position: relative;
+      }
+      .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        font-size: 18px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .btn-toggle,
+      .btn-submit {
+        padding: 10px 20px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      .btn-toggle {
+        background-color: #007bff;
+        color: white;
+      }
+      .btn-submit {
+        background-color: #28a745;
+        color: white;
+      }
+      .btn-not-participate {
+        background-color: #dc3545;
+        color: white;
+      }
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .pagination button {
+        margin: 0 5px;
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .countdown {
+        font-size: 14px;
+        color: #888;
+        margin-top: 10px;
+      }
+      .bid-info {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #333;
+        background-color: #f1f1f1;
+        padding: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>입찰 페이지</h1>
+        <div>
+          <button class="btn-register" id="register-btn" style="display: none">
+            아이템 등록
+          </button>
+          <button class="btn-login" id="login-btn">로그인</button>
+        </div>
+      </div>
+      <ul class="participation-list" id="participation-list">
+        <% data.forEach(function(participation) { %>
+          <li class="participation-item" data-id="<%= participation.id %>">
+            <strong><%= participation.boss %></strong>
+            <p class="boss-info">Clear Time: <%= participation.clearTime %></p>
+            <p class="item-info">Item: <%= participation.item %></p>
+          </li>
+        <% }) %>
+      </ul>
+      <div class="pagination">
+        <button>Next</button>
+      </div>
+    </div>
+
+    <div class="modal" id="detail-modal">
+      <div class="modal-content">
+        <span class="close-btn" id="close-modal">&times;</span>
+        <h1 class="title" id="boss-title">Boss Title</h1>
+        <p class="countdown">
+          남은 시간: <span id="deadline-countdown"></span>
+        </p>
+
+        <div class="form-group" id="input-fields">
+          <label for="nickname">닉네임</label>
+          <input type="text" id="nickname" placeholder="닉네임을 작성해주세요" />
+          <label for="price">입찰 금액</label>
+          <input type="number" id="price" placeholder="입찰 금액을 작성해주세요" />
+          <button class="btn-toggle" id="participation-btn">참여 여부</button>
+          <button class="btn-submit" id = "bid-btn">입찰</button>
+        </div>
+
+        <div class="bid-info" id="bid-info" style="display: none">
+          <p>입찰자 닉네임: <span id="highest-bidder">-</span></p>
+          <p>입찰자 금액: <span id="highest-bid-price">-</span></p>
+          <p>입찰자 참여 여부: <span id="bidder-status">-</span></p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+  const participationBtn = document.getElementById('participation-btn');
+  const bidBtn = document.getElementById('bid-btn');
+  const nicknameInput = document.getElementById('nickname');
+  const priceInput = document.getElementById('price');
+  const inputFields = document.getElementById('input-fields');
+  const bidInfo = document.getElementById('bid-info');
+  const highestBidder = document.getElementById('highest-bidder');
+  const highestBidPrice = document.getElementById('highest-bid-price');
+  const bidderStatus = document.getElementById('bidder-status');
+  let currentParticipationId;
+  
+  const modal = document.getElementById('detail-modal');
+  const closeModalBtn = document.getElementById('close-modal');
+  const participationList = document.getElementById('participation-list');
+  const bossTitleElement = document.getElementById('boss-title');
+  const deadlineCountdown = document.getElementById('deadline-countdown');
+  let countdownInterval;
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  const token = getCookie('authorization');
+  document.getElementById('login-btn').style.display = token ? 'none' : 'inline-block';
+  document.getElementById('register-btn').style.display = token ? 'inline-block' : 'none';
+
+  document.getElementById('login-btn').addEventListener('click', () => {
+    window.location.href = '/auth/login';
+  });
+
+  document.getElementById('register-btn').addEventListener('click', () => {
+    window.location.href = '/register-item';
+  });
+
+  participationList.addEventListener('click', async (event) => {
+    const target = event.target.closest('.participation-item');
+    if (target) {
+      const participationId = target.getAttribute('data-id');
+      currentParticipationId = participationId;
+      try {
+        const response = await fetch(`/participation/${participationId}`);
+        if (response.ok) {
+          const participation = await response.json();
+          openDetailModal(participation);
+        } else {
+          console.error('Failed to fetch participation details');
+        }
+      } catch (error) {
+        console.error('Error fetching participation details:', error);
+      }
+    }
+  });
+
+  function openDetailModal(participation) {
+    bossTitleElement.textContent = participation.boss;
+    const deadline = participation.data.deadLine * 1000;
+    
+    // Reset input fields
+    nicknameInput.value = '';
+    priceInput.value = '';
+    participationBtn.textContent = '참여 여부';
+    participationBtn.style.backgroundColor = '#007bff';
+    participationBtn.dataset.status = '0';
+
+    highestBidder.textContent = participation.data.topName || '-';
+    highestBidPrice.textContent = participation.data.topPrice || '-';
+    bidderStatus.textContent = participation.data.topBidStatus === 0 ? '참여' : '미참여';
+
+    const now = new Date().getTime();
+    if (deadline > now) {
+      // Time remaining, show input fields
+      inputFields.style.display = 'block';
+      bidInfo.style.display = 'none';
+    } else {
+      // Time's up, show bid info
+      inputFields.style.display = 'none';
+      bidInfo.style.display = 'block';
+    }
+
+    modal.style.display = 'flex';
+    updateCountdown(deadline);
+  }
+
+  function updateCountdown(deadline) {
+    clearInterval(countdownInterval);
+
+    function updateTime() {
+      const now = new Date().getTime();
+      const timeLeft = parseInt(deadline) - now;
+
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+        deadlineCountdown.textContent = '종료';
+        inputFields.style.display = 'none';
+        bidInfo.style.display = 'block';
+        return;
+      }
+
+      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      deadlineCountdown.textContent = `${hours}시간 ${minutes}분 ${seconds}초`;
+    }
+
+    updateTime();
+    countdownInterval = setInterval(updateTime, 1000);
+  }
+
+  closeModalBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+    clearInterval(countdownInterval);
+  });
+
+  window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+      clearInterval(countdownInterval);
+    }
+  });
+
+  participationBtn.addEventListener('click', () => {
+    const statusModal = document.createElement('div');
+    statusModal.classList.add('modal');
+    statusModal.style.display = 'flex';
+    statusModal.innerHTML = `
+      <div class="modal-content">
+          <button class="btn-submit" id="btn-participate">참여</button>
+          <button class="btn-submit btn-not-participate" id="btn-not-participate">미참여</button>
+      </div>`;
+    document.body.appendChild(statusModal);
+
+    document.getElementById('btn-participate').addEventListener('click', () => {
+      participationBtn.textContent = '참여';
+      participationBtn.style.backgroundColor = '#28a745';
+      participationBtn.dataset.status = '0';
+      document.body.removeChild(statusModal);
+    });
+
+    document.getElementById('btn-not-participate').addEventListener('click', () => {
+      participationBtn.textContent = '미참여';
+      participationBtn.style.backgroundColor = '#dc3545';
+      participationBtn.dataset.status = '1';
+      document.body.removeChild(statusModal);
+    });
+
+    window.addEventListener('click', (event) => {
+      if (event.target === statusModal) {
+        document.body.removeChild(statusModal);
+      }
+    });
+  });
+
+  bidBtn.addEventListener('click', async () => {
+    const nickname = nicknameInput.value;
+    const price = priceInput.value;
+    const participationStatus = participationBtn.dataset.status || '0';
+
+    const data = {
+      name: nickname,
+      price: parseInt(price),
+      participation: parseInt(participationStatus),
+    };
+    console.log(data);
+
+    try {
+      const response = await fetch(`/bid/${currentParticipationId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        console.log('입찰 성공');
+        alert('입찰이 성공적으로 완료되었습니다.');
+        // Update bid info after successful bid
+        highestBidder.textContent = nickname;
+        highestBidPrice.textContent = price;
+        bidderStatus.textContent = participationStatus === '0' ? '참여' : '미참여';
+        modal.style.display = 'none';
+        clearInterval(countdownInterval);
+      } else {
+        console.error('입찰 실패');
+      }
+    } catch (error) {
+      console.error('입찰 요청 중 오류 발생:', error);
+    }
+  });
+});
+    </script>
+    
+  </body>
+</html>

@@ -5,7 +5,7 @@ export class Participation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'bigint', nullable: false })
   deadLine: number;
 
   @Column({ type: 'varchar', nullable: false })
@@ -16,4 +16,7 @@ export class Participation {
 
   @Column({ type: 'timestamp', nullable: false })
   clearTime: Date;
+
+  @Column({ type: 'int', nullable: false, default: 0 })
+  check: number;
 }

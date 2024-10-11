@@ -1,6 +1,7 @@
 import { ParticipationEnum } from 'src/utils/type/participationEnum_type';
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+@Entity()
 export class Bid {
   @PrimaryGeneratedColumn()
   id: number;
@@ -11,8 +12,8 @@ export class Bid {
   @Column({ type: 'varchar', nullable: false })
   name: string;
 
-  @Column({ type: 'enum', enum: ParticipationEnum })
-  participation: ParticipationEnum;
+  @Column({ type: 'int', enum: ParticipationEnum })
+  participation: number;
 
   @Column({ type: 'int' })
   participationId: number;

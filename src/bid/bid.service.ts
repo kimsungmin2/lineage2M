@@ -11,14 +11,18 @@ export class BidService {
   ) {}
 
   async getNameBid(participationId: number, name: string) {
-    const existingName = await this.bidsRepository.findOne({
-      where: {
-        participationId,
-        name,
-      },
-    });
-    if (existingName) {
-      throw new ConflictException('중복된 입찰 입니다.');
+    try {
+      const existingName = await this.bidsRepository.findOne({
+        where: {
+          participationId,
+          name,
+        },
+      });
+      if (existingName) {
+        throw new ConflictException('중복된 입찰 입니다.');
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 }

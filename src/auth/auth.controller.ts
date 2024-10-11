@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
+import { Controller, Post, Body, Res, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/loginDto';
 
@@ -6,18 +6,24 @@ import { LoginDto } from './dto/loginDto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('login')
+  @Post('/login')
   async login(@Body() loginDto: LoginDto, @Res() res) {
     const user = await this.authService.login(
-      loginDto.email,
+      loginDto.userId,
       loginDto.password,
     );
 
     res.cookie('authorization', `Bearer ${user.accessToken}`, {
       maxAge: 1000 * 60 * 60 * 12,
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
-    res.send('로그인에 성공하였습니다.');
+
+    return res.json({ success: true });
+  }
+
+  @Get('/login')
+  loginPage(@Res() res) {
+    res.render('loginPage');
   }
 }

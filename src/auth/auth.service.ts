@@ -11,23 +11,27 @@ export class AuthService {
     private readonly usersInfoRepository: Repository<Users>,
     private readonly jwtService: JwtService,
   ) {}
-  async login(email: string, password: string) {
-    const user = await this.usersInfoRepository.findOne({
-      select: ['id', 'userId', 'password'],
-      where: { userId: email },
-    });
+  async login(userId: string, password: string) {
+    try {
+      const user = await this.usersInfoRepository.findOne({
+        select: ['id', 'userId', 'password'],
+        where: { userId: userId },
+      });
 
-    if (user.password !== password) {
-      throw new UnauthorizedException();
+      if (user.password !== password) {
+        throw new UnauthorizedException();
+      }
+
+      const payload = { sub: user.id };
+
+      const accessToken = this.jwtService.sign(payload, {
+        secret: process.env.JWT_SECRET_KEY,
+        expiresIn: 1000 * 60 * 60 * 24 * 30,
+      });
+
+      return { accessToken };
+    } catch (error) {
+      console.log(error);
     }
-
-    const payload = { sub: user.id };
-
-    const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET_KEY,
-      expiresIn: 1000 * 60 * 60 * 24 * 30,
-    });
-
-    return { accessToken };
   }
 }

@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Render,
+  Res,
+} from '@nestjs/common';
 import { ParticipationsService } from './participations.service';
 import { CreateParticipationDto } from './dto/create-participation.dto';
 import { CreateBidDto } from 'src/bid/dto/create-bid.dto';
@@ -7,7 +16,7 @@ import { CreateBidDto } from 'src/bid/dto/create-bid.dto';
 export class ParticipationsController {
   constructor(private readonly participationsService: ParticipationsService) {}
 
-  @Get('/:id')
+  @Get('/participation/:id')
   async findByParticipations(@Param('id') id: number) {
     const findData = await this.participationsService.findByParticipations(id);
 
@@ -17,6 +26,7 @@ export class ParticipationsController {
     };
   }
 
+  @Render('mainPage.ejs')
   @Get()
   async findAllParticipations() {
     const findAllData =
@@ -28,13 +38,17 @@ export class ParticipationsController {
     };
   }
 
-  @Post('/:id')
+  @Get('/register-item')
+  @Render('registerItemPage')
+  registerItemPage() {
+    return {};
+  }
+
+  @Post('/participation')
   async createParticipations(
-    @Param('id') id: number,
     @Body() createParticipationDto: CreateParticipationDto,
   ) {
     const createData = await this.participationsService.createParticipations(
-      id,
       createParticipationDto.boss,
       createParticipationDto.clearTime,
       createParticipationDto.item,

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>아이템 등록</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .register-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        width: 400px;
+      }
+      .register-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .btn-register {
+        width: 100%;
+        padding: 10px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .btn-register:hover {
+        background-color: #218838;
+      }
+      .error-message,
+      .success-message {
+        font-size: 14px;
+        margin-top: 10px;
+        text-align: center;
+      }
+      .error-message {
+        color: red;
+      }
+      .success-message {
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="register-container">
+      <h2>아이템 등록</h2>
+      <form id="register-item-form">
+        <div class="form-group">
+          <label for="boss-name">보스 이름</label>
+          <input
+            type="text"
+            id="boss-name"
+            placeholder="보스 이름을 입력하세요"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="clear-time">클리어 시간</label>
+          <input type="datetime-local" id="clear-time" required />
+        </div>
+        <div class="form-group">
+          <label for="item-name">아이템 이름</label>
+          <input
+            type="text"
+            id="item-name"
+            placeholder="아이템 이름을 입력하세요"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-register">등록</button>
+        <p class="error-message" id="error-message" style="display: none">
+          모든 필드를 올바르게 입력하세요.
+        </p>
+        <p class="success-message" id="success-message" style="display: none">
+          아이템이 성공적으로 등록되었습니다!
+        </p>
+      </form>
+    </div>
+
+    <script>
+      const registerForm = document.getElementById('register-item-form');
+      const bossNameInput = document.getElementById('boss-name');
+      const clearTimeInput = document.getElementById('clear-time');
+      const itemNameInput = document.getElementById('item-name');
+      const errorMessage = document.getElementById('error-message');
+      const successMessage = document.getElementById('success-message');
+
+      registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
+
+        const bossName = bossNameInput.value.trim();
+        const clearTime = clearTimeInput.value;
+        const itemName = itemNameInput.value.trim();
+
+        // 입력값 검증
+        if (!bossName || !clearTime || !itemName) {
+          errorMessage.style.display = 'block';
+          successMessage.style.display = 'none';
+          return;
+        }
+
+        // 서버에 데이터 전송
+        const itemData = {
+          boss: bossName,
+          clearTime: clearTime,
+          item: itemName,
+        };
+
+        try {
+          const response = await fetch('/participation', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(itemData),
+          });
+
+          if (response.ok) {
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+
+            // 2초 후에 메인 페이지로 리다이렉트
+            setTimeout(() => {
+              window.location.href = '/'; // 리다이렉트할 URL을 설정하세요 (예: 메인 페이지)
+            });
+          } else {
+            throw new Error('등록에 실패했습니다.');
+          }
+        } catch (error) {
+          errorMessage.textContent = '아이템 등록 중 오류가 발생했습니다.';
+          errorMessage.style.display = 'block';
+          successMessage.style.display = 'none';
+          console.error('Error:', error);
+        }
+      });
+    </script>
+  </body>
+</html>
