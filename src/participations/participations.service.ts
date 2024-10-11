@@ -85,7 +85,7 @@ export class ParticipationsService {
   async findAllParticipations() {
     try {
       const currentTime = new Date().getTime();
-      const twoDaysAgo = currentTime - 2 * 19 * 60 * 60 * 1000;
+      const twoDaysAgo = currentTime - 16 * 60 * 60 * 1000;
 
       return await this.participationsRepository.find({
         where: {
