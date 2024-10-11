@@ -22,7 +22,7 @@ export class BidService {
         throw new ConflictException('중복된 입찰 입니다.');
       }
     } catch (error) {
-      console.log(error);
+      throw new ConflictException('중복된 입찰 입니다.');
     }
   }
 }

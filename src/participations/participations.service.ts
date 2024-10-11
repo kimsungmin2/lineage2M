@@ -42,19 +42,18 @@ export class ParticipationsService {
         });
 
         if (!topBid || topBid.length === 0) {
-          if (Participations.check === 0) {
-            await this.participationsRepository.update(id, {
-              deadLine: Participations.deadLine * 1000 + 1000 * 60 * 60 * 7,
-              check: 1,
-            });
-          }
-
           topBid = await this.bidsRepository.find({
             where: {
               participationId: id,
               participation: 1,
             },
           });
+          if (topBid && Participations.check === 0) {
+            await this.participationsRepository.update(id, {
+              deadLine: Participations.deadLine * 1000 + 1000 * 60 * 60 * 7,
+              check: 1,
+            });
+          }
         }
 
         for (const row of topBid) {
